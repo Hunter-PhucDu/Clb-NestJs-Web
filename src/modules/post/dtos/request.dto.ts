@@ -112,7 +112,7 @@ export class GetPostsBySearchRequestDto extends PaginationDto {
   @ApiProperty({
     required: false,
     type: String,
-    description: 'Search pattern by title',
+    description: 'Search pattern by title or author',
   })
   @IsOptional()
   search?: string;

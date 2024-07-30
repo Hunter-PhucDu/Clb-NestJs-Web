@@ -33,8 +33,24 @@ export class AuthService {
     }
   }
 
-  async generateTokens(_id: string, username: string, role: string): Promise<string> {
-    return await this.jwtService.signAsync({ _id, username, role });
+  // async generateTokens(_id: string, username: string, role: string): Promise<string> {
+  //   return await this.jwtService.signAsync({ _id, username, role });
+  // }
+
+  async generateTokens(
+    _id: string,
+    username: string,
+    role: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const payload = { _id, username, role };
+
+    const accessToken = await this.jwtService.signAsync({ _id, username, role });
+
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
+      expiresIn: '7d',
+    });
+    return { accessToken, refreshToken };
   }
 
   async refreshToken(refreshTokenDto: RefreshTokenRequestDto): Promise<string> {
@@ -60,21 +76,34 @@ export class AuthService {
     return await bcrypt.compare(password, hashedPassword);
   }
 
-  async loginUser(loginDto: LoginRequestDto): Promise<{ accessToken: string }> {
+  async loginUser(loginDto: LoginRequestDto): Promise<{ accessToken: string; refreshToken: string }> {
     const userToken = await this._userLogin(loginDto);
-    if (userToken) return { accessToken: userToken.accessToken };
+    if (userToken) return { accessToken: userToken.accessToken, refreshToken: userToken.refreshToken };
 
     throw new BadRequestException('Username or password is incorrect.');
   }
 
-  async loginAdmin(loginDto: LoginRequestDto): Promise<{ accessToken: string }> {
+  async loginAdmin(loginDto: LoginRequestDto): Promise<{ accessToken: string; refreshToken: string }> {
     const adminToken = await this._adminLogin(loginDto);
-    if (adminToken) return { accessToken: adminToken.accessToken };
+    if (adminToken) return { accessToken: adminToken.accessToken, refreshToken: adminToken.refreshToken };
 
     throw new BadRequestException('Username or password is incorrect.');
   }
 
-  async _userLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string }> {
+  // async _userLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string }> {
+  //   const user = await this.userModel.model.findOne({
+  //     $or: [{ userName: loginDto.userName }, { email: loginDto.userName }],
+  //   });
+  //   if (!user) return null;
+
+  //   const checkPw = await this.checkPassword(loginDto.password, user.password);
+  //   if (!checkPw) return null;
+
+  //   const accessToken = await this.generateTokens(user._id.toString(), user.email, user.role);
+  //   return { accessToken };
+  // }
+
+  async _userLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.userModel.model.findOne({
       $or: [{ userName: loginDto.userName }, { email: loginDto.userName }],
     });
@@ -83,11 +112,23 @@ export class AuthService {
     const checkPw = await this.checkPassword(loginDto.password, user.password);
     if (!checkPw) return null;
 
-    const accessToken = await this.generateTokens(user._id.toString(), user.email, user.role);
-    return { accessToken };
+    const tokens = await this.generateTokens(user._id.toString(), user.email, user.role);
+    return tokens;
   }
 
-  async _adminLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string }> {
+  // async _adminLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string }> {
+  //   const { userName, password } = loginDto;
+  //   const adminDoc = await this.adminModel.model.findOne({ userName: userName });
+  //   if (!adminDoc) return null;
+
+  //   const checkPw = await this.checkPassword(password, adminDoc.password);
+  //   if (!checkPw) return null;
+
+  //   const accessToken = await this.generateTokens(adminDoc._id, userName, adminDoc.role);
+  //   return { accessToken };
+  // }
+
+  async _adminLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string; refreshToken: string }> {
     const { userName, password } = loginDto;
     const adminDoc = await this.adminModel.model.findOne({ userName: userName });
     if (!adminDoc) return null;
@@ -95,8 +136,8 @@ export class AuthService {
     const checkPw = await this.checkPassword(password, adminDoc.password);
     if (!checkPw) return null;
 
-    const accessToken = await this.generateTokens(adminDoc._id, userName, adminDoc.role);
-    return { accessToken };
+    const tokens = await this.generateTokens(adminDoc._id, userName, adminDoc.role);
+    return tokens;
   }
 
   async logOut(logOutDto: LogOutRequestDto): Promise<void> {

@@ -10,11 +10,16 @@ import { JwtAuthGuard } from 'modules/shared/gaurds/jwt.guard';
 import { RolesGuard } from 'modules/shared/gaurds/role.gaurd';
 import { Roles } from 'modules/shared/decorators/role.decorator';
 import { ERole } from 'modules/shared/enums/auth.enum';
-import { AddPostRequestDto, GetPostsRequestDto, UpdatePostRequestDto } from './dtos/request.dto';
+import {
+  AddPostRequestDto,
+  GetPostsBySearchRequestDto,
+  GetPostsRequestDto,
+  UpdatePostRequestDto,
+} from './dtos/request.dto';
 import { ListRecordSuccessResponseDto } from 'modules/shared/dtos/list-record-success-response.dto';
 import { plainToInstance } from 'class-transformer';
 
-@Controller('Posts')
+@Controller('posts')
 @ApiTags('Posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
@@ -36,7 +41,7 @@ export class PostController {
     return await this.postService.addPost(body);
   }
 
-  @Get(':postId')
+  @Get('details/:postId')
   @ApiOperation({
     summary: 'Get post details',
     description: 'Get post details',
@@ -46,13 +51,13 @@ export class PostController {
     return await this.postService.getPost(postId);
   }
 
-  @Put(':postId')
+  @Put('update/:postId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Roles([ERole.ADMIN])
   @ApiOperation({
-    summary: 'Passed first round',
-    description: 'Update Post passed first round',
+    summary: 'Update Post',
+    description: 'Update Post',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -68,7 +73,7 @@ export class PostController {
     return plainToInstance(PostResponseDto, res);
   }
 
-  @Put(':postId/publish')
+  @Put('publish/:postId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Roles([ERole.ADMIN])
@@ -84,20 +89,18 @@ export class PostController {
 
   @Get('')
   @ApiSuccessPaginationResponse({ dataType: PostResponseDto })
-  async getPosts(): Promise<PostResponseDto[]> {
-    return await this.postService.getPosts();
+  async getPostsWithPagination(
+    @Query() getPostsRequestDto: GetPostsRequestDto,
+  ): Promise<ListRecordSuccessResponseDto<PostResponseDto>> {
+    return await this.postService.getPosts(getPostsRequestDto);
   }
 
   @Get('search')
-  @ApiOperation({
-    summary: 'Get pagination posts',
-    description: 'Get pagination posts',
-  })
   @ApiSuccessPaginationResponse({ dataType: PostResponseDto })
   async findWithPagination(
-    @Query() getPostsRequestDto: GetPostsRequestDto,
+    @Query() getPostsBySearchRequestDto: GetPostsBySearchRequestDto,
   ): Promise<ListRecordSuccessResponseDto<PostResponseDto>> {
-    return await this.postService.getPostsBySearch(getPostsRequestDto);
+    return await this.postService.getPostsBySearch(getPostsBySearchRequestDto);
   }
 
   @Delete(':postId')

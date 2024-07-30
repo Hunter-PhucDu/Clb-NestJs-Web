@@ -1,11 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { IsEnum } from 'class-validator';
+import { TransformMongoId } from 'modules/shared/decorators/transform.decorator';
 import { ECommittee } from 'modules/shared/enums/committee.enum';
 import { ESex } from 'modules/shared/enums/sex.enum';
+import { Types } from 'mongoose';
 
 @Exclude()
 export class MemberResponseDto {
+  @Expose()
+  @ApiProperty({
+    required: true,
+    type: String,
+    example: 'abcd...',
+  })
+  @TransformMongoId()
+  _id: Types.ObjectId;
+
   @Expose()
   @ApiProperty({ required: false, type: 'string', format: 'binary' })
   avatar?: any;
@@ -67,14 +78,4 @@ export class MemberResponseDto {
   @Expose()
   @IsEnum(ECommittee)
   committee?: ECommittee;
-}
-
-@Exclude()
-export class MembersResponseDto {
-  @Expose()
-  @Type(() => MemberResponseDto)
-  @ApiProperty({
-    type: [MemberResponseDto],
-  })
-  members: MemberResponseDto[];
 }

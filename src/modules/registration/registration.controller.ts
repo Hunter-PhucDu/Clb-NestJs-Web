@@ -44,7 +44,7 @@ export class RegistrationController {
     return await this.registrationService.getRegistration(registrationId);
   }
 
-  @Put(':registrationId/passedFirstRound')
+  @Put('passedFirstRound/:registrationId')
   @ApiBearerAuth()
   @Roles([ERole.ADMIN])
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -61,7 +61,7 @@ export class RegistrationController {
     return plainToInstance(RegistrationResponseDto, res);
   }
 
-  @Put(':registrationId/passedSecondRound')
+  @Put('passedSecondRound/:registrationId')
   @ApiBearerAuth()
   @Roles([ERole.ADMIN])
   @UseGuards(JwtAuthGuard, RolesGuard)

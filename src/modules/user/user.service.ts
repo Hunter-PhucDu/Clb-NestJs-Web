@@ -119,7 +119,16 @@ export class UserService {
     }
   }
 
-  async getUsers(paginationDto: GetUsersRequestDto): Promise<ListRecordSuccessResponseDto<UserResponseDto>> {
+  async getUsers(): Promise<UserResponseDto[]> {
+    try {
+      const usersDoc = await this.userModel.model.find().exec();
+      return usersDoc.map((doc) => doc.toObject());
+    } catch (e) {
+      throw new BadRequestException(`Error while getting users: ${e.message}`);
+    }
+  }
+
+  async getUsersBySearch(paginationDto: GetUsersRequestDto): Promise<ListRecordSuccessResponseDto<UserResponseDto>> {
     const { page, size, search } = paginationDto;
     const skip = (page - 1) * size;
 

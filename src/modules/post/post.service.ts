@@ -2,7 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostResponseDto } from './dtos/response.dto';
 import { PostModel } from 'modules/shared/models/post.model';
 import { plainToClass, plainToInstance } from 'class-transformer';
-import { AddPostRequestDto, GetPostsBySearchRequestDto, UpdatePostRequestDto } from './dtos/request.dto';
+import {
+  AddPostRequestDto,
+  GetPostsBySearchRequestDto,
+  GetPostsRequestDto,
+  UpdatePostRequestDto,
+} from './dtos/request.dto';
 import { ListRecordSuccessResponseDto } from 'modules/shared/dtos/list-record-success-response.dto';
 import { MetadataResponseDto } from 'modules/shared/dtos/metadata-response.dto';
 import { getPagination } from 'modules/shared/utils/get-pagination';
@@ -11,17 +16,6 @@ import { getPagination } from 'modules/shared/utils/get-pagination';
 export class PostService {
   constructor(private readonly postModel: PostModel) {}
 
-  // async addPost(addPostDto: AddPostRequestDto): Promise<PostResponseDto> {
-  //   try {
-  //     const newPost = await this.postModel.save({
-  //       ...addPostDto,
-  //       published: false,
-  //     });
-  //     return plainToClass(PostResponseDto, newPost.toObject());
-  //   } catch (error) {
-  //     throw new BadRequestException(`Error while add new Post: ${error.message}`);
-  //   }
-  // }
   async addPost(createPostDto: AddPostRequestDto): Promise<PostResponseDto> {
     const { richTextContent } = createPostDto;
 
@@ -84,13 +78,22 @@ export class PostService {
     return plainToInstance(PostResponseDto, postDoc.toObject());
   }
 
-  async getPosts(): Promise<PostResponseDto[]> {
-    try {
-      const postsDoc = await this.postModel.model.find().exec();
-      return postsDoc.map((doc) => doc.toObject());
-    } catch (e) {
-      throw new BadRequestException(`Error while getting posts: ${e.message}`);
-    }
+  async getPosts(paginationDto: GetPostsRequestDto): Promise<ListRecordSuccessResponseDto<PostResponseDto>> {
+    const { page, size } = paginationDto;
+    const skip = (page - 1) * size;
+
+    const [posts, totalItem] = await Promise.all([
+      this.postModel.model.find().skip(skip).limit(size).exec(),
+      this.postModel.model.countDocuments(),
+    ]);
+
+    const metadata: MetadataResponseDto = getPagination(size, page, totalItem);
+    const postResponseDtos: PostResponseDto[] = plainToInstance(PostResponseDto, posts);
+
+    return {
+      metadata,
+      data: postResponseDtos,
+    };
   }
 
   async getPostsBySearch(
@@ -100,7 +103,7 @@ export class PostService {
     const skip = (page - 1) * size;
 
     const searchCondition = search
-      ? { $or: [{ fullName: { $regex: new RegExp(search, 'i') } }, { email: { $regex: new RegExp(search, 'i') } }] }
+      ? { $or: [{ title: { $regex: new RegExp(search, 'i') } }, { author: { $regex: new RegExp(search, 'i') } }] }
       : {};
 
     const [posts, totalItem] = await Promise.all([

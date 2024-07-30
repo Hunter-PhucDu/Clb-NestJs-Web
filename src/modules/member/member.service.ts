@@ -82,23 +82,27 @@ export class MemberService {
   async getMembersBySearch(
     paginationDto: GetMembersRequestDto,
   ): Promise<ListRecordSuccessResponseDto<MemberResponseDto>> {
-    const { page, size, search } = paginationDto;
-    const skip = (page - 1) * size;
+    try {
+      const { page, size, search } = paginationDto;
+      const skip = (page - 1) * size;
 
-    const searchCondition = search ? { fullName: { $regex: new RegExp(search, 'i') } } : {};
+      const searchCondition = search ? { fullName: { $regex: new RegExp(search, 'i') } } : {};
 
-    const [members, totalItem] = await Promise.all([
-      this.memberModel.model.find(searchCondition).skip(skip).limit(size).exec(),
-      this.memberModel.model.countDocuments(searchCondition),
-    ]);
+      const [members, totalItem] = await Promise.all([
+        this.memberModel.model.find(searchCondition).skip(skip).limit(size).exec(),
+        this.memberModel.model.countDocuments(searchCondition),
+      ]);
 
-    const metadata: MetadataResponseDto = getPagination(size, page, totalItem);
-    const memberResponseDtos: MemberResponseDto[] = plainToInstance(MemberResponseDto, members);
+      const metadata: MetadataResponseDto = getPagination(size, page, totalItem);
+      const memberResponseDtos: MemberResponseDto[] = plainToInstance(MemberResponseDto, members);
 
-    return {
-      metadata,
-      data: memberResponseDtos,
-    };
+      return {
+        metadata,
+        data: memberResponseDtos,
+      };
+    } catch (e) {
+      throw new BadRequestException(`Error while getting members by search: ${e.message}`);
+    }
   }
 
   async removeMember(memberId: string): Promise<void> {

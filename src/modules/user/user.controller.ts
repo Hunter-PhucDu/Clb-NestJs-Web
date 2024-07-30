@@ -125,19 +125,32 @@ export class UserController {
     return plainToInstance(ChangePasswordResponseDto, { newPassword: res.message });
   }
 
-  @Get('users')
+  @Get('list')
   @Roles([ERole.ADMIN])
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({
-    summary: 'Get pagination users',
-    description: 'Get pagination users',
+    summary: 'Get members details',
+    description: 'Change members details',
+  })
+  @ApiSuccessPaginationResponse({ dataType: UserResponseDto })
+  async getMembers(): Promise<UserResponseDto[]> {
+    return await this.userService.getUsers();
+  }
+
+  @Get('search')
+  @Roles([ERole.ADMIN])
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({
+    summary: 'Get pagination users by search',
+    description: 'Get pagination users by search',
   })
   @ApiSuccessPaginationResponse({ dataType: UserResponseDto })
   async findWithPagination(
     @Query() getUsersRequestDto: GetUsersRequestDto,
   ): Promise<ListRecordSuccessResponseDto<UserResponseDto>> {
-    return await this.userService.getUsers(getUsersRequestDto);
+    return await this.userService.getUsersBySearch(getUsersRequestDto);
   }
 
   @Delete(':userId')

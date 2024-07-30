@@ -21,17 +21,17 @@ export class PaginationDto {
   @Transform(({ value }) => parseInt(value) || 10)
   size?: number;
 
-  @Expose()
-  @ApiPropertyOptional({
-    type: String,
-    example: 'createdAt',
-  })
-  orderBy?: string;
+  // @Expose()
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   example: 'createdAt',
+  // })
+  // orderBy?: string;
 
-  @Expose()
-  @ApiPropertyOptional({
-    type: String,
-    example: 'asc',
-  })
-  orderDirection?: string;
+  // @Expose()
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   example: 'asc',
+  // })
+  // orderDirection?: string;
 }

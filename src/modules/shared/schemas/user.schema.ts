@@ -42,7 +42,7 @@ export class User {
   experiencePoints?: number;
 
   @Prop({ type: String, enum: ERank, default: ERank.IRON })
-  rank?: ERank;
+  rank: ERank;
 
   @Prop({ type: String, required: true, enum: ERole })
   role: ERole;

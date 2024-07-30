@@ -170,6 +170,7 @@ export class UpdateMemberRequestDto {
 }
 
 export class GetMembersRequestDto extends PaginationDto {
+  @Expose()
   @ApiProperty({
     required: false,
     type: String,

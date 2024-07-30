@@ -12,7 +12,7 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { MemberService } from './member.service';
-import { MemberResponseDto, MembersResponseDto } from './dtos/response.dto';
+import { MemberResponseDto } from './dtos/response.dto';
 import { AddMemberRequestDto, GetMembersRequestDto, UpdateMemberRequestDto } from './dtos/request.dto';
 import { Roles } from 'modules/shared/decorators/role.decorator';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -88,7 +88,7 @@ export class MemberController {
     return plainToInstance(MemberResponseDto, res);
   }
 
-  @Get(':memberId')
+  @Get('details/:memberId')
   @ApiOperation({
     summary: 'Get member  details',
     description: 'Get member  details',
@@ -98,12 +98,12 @@ export class MemberController {
     return await this.memberService.getMember(memberId);
   }
 
-  @Get('')
+  @Get('list')
   @ApiOperation({
     summary: 'Get members details',
     description: 'Change members details',
   })
-  @ApiSuccessPaginationResponse({ dataType: MembersResponseDto })
+  @ApiSuccessPaginationResponse({ dataType: MemberResponseDto })
   async getMembers(): Promise<MemberResponseDto[]> {
     return await this.memberService.getMembers();
   }
