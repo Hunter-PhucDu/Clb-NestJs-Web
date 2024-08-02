@@ -7,6 +7,7 @@ import { AdminModel } from 'modules/shared/models/admin.model';
 import { ConfigService } from '@nestjs/config';
 import { ERole } from 'modules/shared/enums/auth.enum';
 import { OtpModel } from 'modules/shared/models/otp.model';
+import { LoginResponseDto } from './dtos/response.dto';
 
 @Injectable()
 export class AuthService {
@@ -76,9 +77,14 @@ export class AuthService {
     return await bcrypt.compare(password, hashedPassword);
   }
 
-  async loginUser(loginDto: LoginRequestDto): Promise<{ accessToken: string; refreshToken: string }> {
+  async loginUser(loginDto: LoginRequestDto): Promise<LoginResponseDto> {
     const userToken = await this._userLogin(loginDto);
-    if (userToken) return { accessToken: userToken.accessToken, refreshToken: userToken.refreshToken };
+    if (userToken)
+      return {
+        accessToken: userToken.accessToken,
+        refreshToken: userToken.refreshToken,
+        avatarUrl: userToken.avatarUrl,
+      };
 
     throw new BadRequestException('Username or password is incorrect.');
   }
@@ -90,7 +96,7 @@ export class AuthService {
     throw new BadRequestException('Username or password is incorrect.');
   }
 
-  // async _userLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string }> {
+  // async _userLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string; refreshToken: string }> {
   //   const user = await this.userModel.model.findOne({
   //     $or: [{ userName: loginDto.userName }, { email: loginDto.userName }],
   //   });
@@ -99,11 +105,13 @@ export class AuthService {
   //   const checkPw = await this.checkPassword(loginDto.password, user.password);
   //   if (!checkPw) return null;
 
-  //   const accessToken = await this.generateTokens(user._id.toString(), user.email, user.role);
-  //   return { accessToken };
+  //   const tokens = await this.generateTokens(user._id.toString(), user.email, user.role);
+  //   return tokens;
   // }
 
-  async _userLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string; refreshToken: string }> {
+  async _userLogin(
+    loginDto: LoginRequestDto,
+  ): Promise<{ accessToken: string; refreshToken: string; avatarUrl: string }> {
     const user = await this.userModel.model.findOne({
       $or: [{ userName: loginDto.userName }, { email: loginDto.userName }],
     });
@@ -113,20 +121,9 @@ export class AuthService {
     if (!checkPw) return null;
 
     const tokens = await this.generateTokens(user._id.toString(), user.email, user.role);
-    return tokens;
+    const avatarUrl = `${this.configService.get('BASE_URL')}/images/${user.avatar}`;
+    return { ...tokens, avatarUrl };
   }
-
-  // async _adminLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string }> {
-  //   const { userName, password } = loginDto;
-  //   const adminDoc = await this.adminModel.model.findOne({ userName: userName });
-  //   if (!adminDoc) return null;
-
-  //   const checkPw = await this.checkPassword(password, adminDoc.password);
-  //   if (!checkPw) return null;
-
-  //   const accessToken = await this.generateTokens(adminDoc._id, userName, adminDoc.role);
-  //   return { accessToken };
-  // }
 
   async _adminLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string; refreshToken: string }> {
     const { userName, password } = loginDto;

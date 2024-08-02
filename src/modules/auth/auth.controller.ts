@@ -8,7 +8,7 @@ import {
   LogOutRequestDto,
   RefreshTokenRequestDto,
 } from './dtos/request.dto';
-import { LoginResponseDto } from './dtos/response.dto';
+import { AdminLoginResponseDto, LoginResponseDto } from './dtos/response.dto';
 import { JwtAuthGuard } from 'modules/shared/gaurds/jwt.guard';
 import { ApiSuccessResponse } from 'modules/shared/decorators/api-success-response.decorator';
 import { EmailService } from 'modules/email/email.service';
@@ -27,8 +27,8 @@ export class AuthController {
     summary: 'Login for admin',
     description: 'Login for admin',
   })
-  @ApiSuccessResponse({ dataType: LoginResponseDto })
-  async loginAdmin(@Body() loginDto: LoginRequestDto): Promise<LoginResponseDto> {
+  @ApiSuccessResponse({ dataType: AdminLoginResponseDto })
+  async loginAdmin(@Body() loginDto: LoginRequestDto): Promise<AdminLoginResponseDto> {
     return this.authService.loginAdmin(loginDto);
   }
 

@@ -1,13 +1,15 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from 'app.module';
 import { HttpExceptionFilter } from 'modules/shared/filters/http-exception.filter';
 import { ResponseTransformInterceptor } from 'modules/shared/interceptors/response.interceptor';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   app.setGlobalPrefix(configService.get('app.prefix'));
   app.enableCors();
@@ -19,11 +21,16 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseTransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
 
+  // Cấu hình để phục vụ các tệp tĩnh từ thư mục 'images'
+  app.useStaticAssets(join(__dirname, '..', 'images'), {
+    prefix: '/images/',
+  });
+
   await setupSwagger(app);
   await startPort(app);
 }
 
-async function setupSwagger(app: INestApplication): Promise<void> {
+async function setupSwagger(app: NestExpressApplication): Promise<void> {
   const configService = app.get(ConfigService);
   const docBuilder = new DocumentBuilder()
     .addBearerAuth()
@@ -48,7 +55,7 @@ async function setupSwagger(app: INestApplication): Promise<void> {
   });
 }
 
-async function startPort(app: INestApplication): Promise<void> {
+async function startPort(app: NestExpressApplication): Promise<void> {
   const configService = app.get(ConfigService);
   await app.listen(configService.get<number>('app.port'));
 
