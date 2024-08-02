@@ -120,7 +120,7 @@ export class AuthService {
     const checkPw = await this.checkPassword(loginDto.password, user.password);
     if (!checkPw) return null;
 
-    const tokens = await this.generateTokens(user._id.toString(), user.email, user.role);
+    const tokens = await this.generateTokens(user._id.toString(), user.userName, user.role);
     const avatarUrl = `${this.configService.get('BASE_URL')}/images/${user.avatar}`;
     return { ...tokens, avatarUrl };
   }
