@@ -116,7 +116,7 @@ export class MemberController {
     return await this.memberService.getMembersBySearch(getMembersRequestDto);
   }
 
-  @Delete(':memberId/remove')
+  @Delete(':memberId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Roles([ERole.ADMIN])

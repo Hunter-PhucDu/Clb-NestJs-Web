@@ -24,21 +24,21 @@ export class Member {
   class: string;
 
   @Prop({ required: false, unique: true })
-  phone: string;
+  phone?: string;
 
   @Prop({ type: String, required: true, unique: true })
   email: string;
 
   @Prop({ type: String, required: false, enum: ESex, default: ESex.MALE })
-  sex: ESex;
+  sex?: ESex;
 
-  @Prop({ required: true })
-  dateOfBirth: Date;
+  @Prop({ type: Date, required: false })
+  dateOfBirth?: Date;
 
-  @Prop({ type: Date, required: true })
-  joinedDate: Date;
+  @Prop({ type: Date, required: false })
+  joinedDate?: Date;
 
-  @Prop({ required: false, enum: ECommittee })
+  @Prop({ required: false, enum: ECommittee, default: ECommittee.Member })
   committee?: ECommittee;
 }
 

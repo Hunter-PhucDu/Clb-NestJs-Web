@@ -130,11 +130,11 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({
-    summary: 'Get members details',
-    description: 'Change members details',
+    summary: 'Get users details',
+    description: 'Get users details',
   })
   @ApiSuccessPaginationResponse({ dataType: UserResponseDto })
-  async getMembers(): Promise<UserResponseDto[]> {
+  async getUsers(): Promise<UserResponseDto[]> {
     return await this.userService.getUsers();
   }
 

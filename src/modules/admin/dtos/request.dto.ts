@@ -53,6 +53,7 @@ export class ChangePasswordRequestDto {
   @Matches(/^[^\s]*$/, {
     message: 'Password should not contain spaces.',
   })
+  Communication;
   newPassword: string;
 }
 

@@ -33,16 +33,16 @@ export class AddMemberRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: String,
     example: '0378886868',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmailOrPhone({
     message: 'Phone number is not valid (VN)',
   })
   @Transform(({ value }) => value?.trim())
-  phone: string;
+  phone?: string;
 
   @Expose()
   @ApiProperty({
@@ -57,31 +57,31 @@ export class AddMemberRequestDto {
   @Transform(({ value }) => value?.trim())
   email: string;
 
-  @ApiProperty({ enum: ESex, default: ESex.FEMALE })
+  @ApiProperty({ required: false, enum: ESex, default: ESex.MALE })
   @Expose()
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(ESex)
-  sex: ESex;
+  sex?: ESex;
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: Date,
     example: '1/1/2000',
   })
-  @IsNotEmpty()
-  dateOfBirth: Date;
+  @IsOptional()
+  dateOfBirth?: Date;
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: Date,
     example: '20/6/2024',
   })
-  @IsNotEmpty()
-  joinedDate: Date;
+  @IsOptional()
+  joinedDate?: Date;
 
-  @ApiProperty({ enum: ECommittee, default: ECommittee.Member })
+  @ApiProperty({ required: false, enum: ECommittee, default: ECommittee.Member })
   @Expose()
   @IsOptional()
   @IsEnum(ECommittee)

@@ -75,7 +75,7 @@ export class QuestionController {
     return await this.questionService.getQuestions();
   }
 
-  @Delete(':questionId/remove')
+  @Delete(':questionId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Roles([ERole.ADMIN])

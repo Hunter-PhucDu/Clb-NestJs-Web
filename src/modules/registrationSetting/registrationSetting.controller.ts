@@ -9,8 +9,8 @@ import { RegistrationSettingRequestDto } from './dtos/request.dto';
 import { RegistrationSettingResponseDto } from './dtos/response.dto';
 import { RegistrationSettingService } from './registrationSetting.service';
 
-@Controller('registration-settings')
-@ApiTags('Registration-settings')
+@Controller('registrationSettings')
+@ApiTags('RegistrationSettings')
 export class RegistrationSettingController {
   constructor(private readonly registrationSettingService: RegistrationSettingService) {}
 
