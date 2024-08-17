@@ -8,6 +8,8 @@ import eConfirmationSignUp from 'modules/shared/utils/eConfirmationSignUp';
 import eConfirmationRegistration from 'modules/shared/utils/eConfirmationRegistration';
 import ePassedFirstRound from 'modules/shared/utils/ePassedFirstRound';
 import ePassedSecondRound from 'modules/shared/utils/ePassedSecondRound';
+import eUnPassedSecondRound from 'modules/shared/utils/eUnPassedSecondRound';
+import eUnPassedFirstRound from 'modules/shared/utils/eUnPassedFirstRound';
 
 @Injectable()
 export class EmailService {
@@ -54,6 +56,18 @@ export class EmailService {
     });
   }
 
+  async _sendMailUnPassedFirstRound(email: string, fullName: string): Promise<void> {
+    await this.mailerService.sendMail({
+      to: email,
+      from: {
+        name: 'Câu lạc bộ Lập trình',
+        address: 'clblaptrinh@utb.edu.vn',
+      },
+      subject: 'Thông báo về vòng xét duyệt hồ sơ tham gia Câu lạc bộ',
+      html: eUnPassedFirstRound(fullName),
+    });
+  }
+
   async _sendMailPassedSecondRound(email: string, fullName: string): Promise<void> {
     await this.mailerService.sendMail({
       to: email,
@@ -63,6 +77,18 @@ export class EmailService {
       },
       subject: 'Chúc mừng bạn đã thông qua vòng phỏng vấn',
       html: ePassedSecondRound(fullName),
+    });
+  }
+
+  async _sendMailUnPassedSecondRound(email: string, fullName: string): Promise<void> {
+    await this.mailerService.sendMail({
+      to: email,
+      from: {
+        name: 'Câu lạc bộ Lập trình',
+        address: 'clblaptrinh@utb.edu.vn',
+      },
+      subject: 'Thông báo về vòng phỏng vấn tham gia Câu lạc bộ',
+      html: eUnPassedSecondRound(fullName),
     });
   }
 

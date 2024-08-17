@@ -33,15 +33,6 @@ export class LoginRequestDto {
 }
 
 @Exclude()
-export class LogOutRequestDto {
-  @ApiProperty({ example: 'userId' })
-  @Expose()
-  @IsString()
-  @IsNotEmpty()
-  _id: string;
-}
-
-@Exclude()
 export class ChangePasswordRequestDto {
   @ApiProperty({ example: 'currentPassword' })
   @Expose()
@@ -97,7 +88,11 @@ export class ForgotPasswordDto {
   @IsNotEmpty()
   otp: string;
 
-  @ApiProperty({ example: 'newPassword' })
+  @ApiProperty({
+    required: true,
+    type: String,
+    example: 'newPassword',
+  })
   @Expose()
   @IsString()
   @IsNotEmpty()

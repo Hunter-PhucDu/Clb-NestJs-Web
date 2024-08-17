@@ -4,6 +4,7 @@ import { IsEnum, IsNotEmpty, IsOptional, Matches } from 'class-validator';
 import { IsEmailOrPhone } from '../../../modules/shared/decorators/is-email-or-phone.decorator';
 import { PaginationDto } from '../../../modules/shared/dtos/pagination.dto';
 import { ESex } from 'modules/shared/enums/sex.enum';
+import { IsPhone } from 'modules/shared/decorators/is-phone.docorator';
 
 @Exclude()
 export class AddUserRequestDto {
@@ -92,7 +93,7 @@ export class UpdateUserRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: String,
     example: 'Nguyen Van B',
   })
@@ -101,12 +102,12 @@ export class UpdateUserRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: String,
     example: '0371234567',
   })
   @IsOptional()
-  @IsEmailOrPhone({
+  @IsPhone({
     message: 'Phone number is not valid (VN)',
   })
   @Transform(({ value }) => value?.trim())
@@ -114,7 +115,7 @@ export class UpdateUserRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: String,
     example: 'abc123@gmail.com',
   })
@@ -127,8 +128,8 @@ export class UpdateUserRequestDto {
 
   @Expose()
   @ApiProperty({
+    required: false,
     enum: ESex,
-    default: ESex.FEMALE,
   })
   @IsOptional()
   @IsEnum(ESex)
@@ -136,7 +137,7 @@ export class UpdateUserRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: Date,
     example: '1/1/2000',
   })

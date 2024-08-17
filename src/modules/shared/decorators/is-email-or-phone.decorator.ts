@@ -6,11 +6,18 @@ import {
 } from 'class-validator';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 
-@ValidatorConstraint({ async: true })
+@ValidatorConstraint({ async: false })
 export class IsEmailOrPhoneConstraint implements ValidatorConstraintInterface {
   validate(text: string) {
+    if (!text) {
+      return true;
+    }
+
     const emailRegex = /\S+@\S+\.\S+/;
     return emailRegex.test(text) || isValidPhoneNumber(text, 'VN');
+  }
+  defaultMessage() {
+    return 'Phone number is not valid (VN) or email is not valid';
   }
 }
 

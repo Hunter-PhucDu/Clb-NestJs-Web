@@ -13,6 +13,7 @@ import { RegistrationResponseDto } from './dtos/response.dto';
 import { QuestionModel } from 'modules/shared/models/question.model';
 import { EmailService } from 'modules/email/email.service';
 import { RegistrationSettingService } from 'modules/registrationSetting/registrationSetting.service';
+import moment from 'moment';
 
 @Injectable()
 export class RegistrationService {
@@ -37,6 +38,14 @@ export class RegistrationService {
         question: q.question,
         answer: '',
       }));
+
+      if (addRegistrationDto.dateOfBirth) {
+        const parsedDate = moment(addRegistrationDto.dateOfBirth, 'DD/MM/YYYY', true);
+        if (!parsedDate.isValid()) {
+          throw new BadRequestException('Invalid date format. Please use DD/MM/YYYY.');
+        }
+        addRegistrationDto.dateOfBirth = parsedDate.toDate();
+      }
 
       const newRegistration = await this.registrationModel.save({
         ...addRegistrationDto,
@@ -90,6 +99,25 @@ export class RegistrationService {
     }
   }
 
+  async sendEmailUnpassedFirstRound(): Promise<void> {
+    try {
+      const docs = await this.registrationModel.model.find({ passedFirstRound: false });
+
+      if (!docs || docs.length === 0) {
+        throw new BadRequestException('No registrations found that have not passed the first round');
+      }
+
+      for (const doc of docs) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await this.emailService._sendMailUnPassedFirstRound(doc.email, doc.fullName);
+      }
+
+      await this.registrationModel.model.deleteMany({ passedSecondRound: false });
+    } catch (error) {
+      throw new BadRequestException(`Error while sending email: ${error.message}`);
+    }
+  }
+
   async updatePassedSecondRound(registrationId: string): Promise<RegistrationResponseDto> {
     try {
       const existDoc = await this.registrationModel.model.findOne({ _id: registrationId });
@@ -121,6 +149,24 @@ export class RegistrationService {
       return plainToClass(RegistrationResponseDto, registrationDoc.toObject());
     } catch (error) {
       throw new BadRequestException(`Error while updating passed second round: ${error.message}`);
+    }
+  }
+
+  async sendEmailUnpassedSecondRound(): Promise<void> {
+    try {
+      const docs = await this.registrationModel.model.find({ passedSecondRound: false });
+
+      if (!docs || docs.length === 0) {
+        throw new BadRequestException('No registrations found that have not passed the second round');
+      }
+
+      for (const doc of docs) {
+        await this.emailService._sendMailUnPassedSecondRound(doc.email, doc.fullName);
+      }
+
+      await this.registrationModel.model.deleteMany({ passedSecondRound: false });
+    } catch (error) {
+      throw new BadRequestException(`Error while sending email: ${error.message}`);
     }
   }
 

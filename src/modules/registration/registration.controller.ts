@@ -75,6 +75,30 @@ export class RegistrationController {
     return plainToInstance(RegistrationResponseDto, res);
   }
 
+  @Post('unpassedFirstRound')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles([ERole.ADMIN])
+  @ApiOperation({
+    summary: 'Send emails and delete unpassed first round registrations',
+    description: 'Send emails to all registrations that have not passed the first round',
+  })
+  async unpassedFirstRoundRegistrations(): Promise<void> {
+    await this.registrationService.sendEmailUnpassedFirstRound();
+  }
+
+  @Post('unpassedSecondRound')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles([ERole.ADMIN])
+  @ApiOperation({
+    summary: 'Send emails and delete unpassed second round registrations',
+    description: 'Send emails to all registrations that have not passed the second round',
+  })
+  async unpassedSecondRoundRegistrations(): Promise<void> {
+    await this.registrationService.sendEmailUnpassedSecondRound();
+  }
+
   @Get('')
   @ApiBearerAuth()
   @Roles([ERole.ADMIN])

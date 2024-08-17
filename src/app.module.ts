@@ -25,6 +25,7 @@ import { join } from 'path';
     EmailModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'images'),
+      serveRoot: '/images',
     }),
   ],
 })

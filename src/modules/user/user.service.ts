@@ -16,6 +16,9 @@ import {
 } from './dtos/request.dto';
 import { ChangePasswordResponseDto, UserResponseDto } from './dtos/response.dto';
 import { EmailService } from 'modules/email/email.service';
+import { unlinkSync } from 'fs';
+import moment from 'moment';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
@@ -23,6 +26,7 @@ export class UserService {
     private readonly userModel: UserModel,
     private readonly authService: AuthService,
     private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async addUser(addUserDto: AddUserRequestDto, avatar?: string): Promise<UserResponseDto> {
@@ -37,6 +41,14 @@ export class UserService {
       }
       const hashedPw = await this.authService.hashPassword(password);
 
+      if (addUserDto.dateOfBirth) {
+        const parsedDate = moment(addUserDto.dateOfBirth, 'DD/MM/YYYY', true);
+        if (!parsedDate.isValid()) {
+          throw new BadRequestException('Invalid date format. Please use DD/MM/YYYY.');
+        }
+        addUserDto.dateOfBirth = parsedDate.toDate();
+      }
+
       const newUser = await this.userModel.save({
         ...addUserDto,
         avatar,
@@ -50,34 +62,71 @@ export class UserService {
 
       return plainToClass(UserResponseDto, newUser.toObject());
     } catch (error) {
+      if (avatar) {
+        try {
+          unlinkSync(`./images/${avatar}`);
+        } catch (unlinkError) {
+          console.error('Failed to delete avatar file:', unlinkError);
+        }
+      }
       throw new BadRequestException(`Error while sign up: ${error.message}`);
     }
   }
 
   async updateUser(user: IJwtPayload, updateUserDto: UpdateUserRequestDto, avatar?: string): Promise<UserResponseDto> {
+    const session = await this.userModel.model.startSession();
+    session.startTransaction();
+
     try {
-      if (user.role === ERole.USER) {
-        delete updateUserDto.email;
-        delete updateUserDto.phone;
+      const existingUser = await this.userModel.model.findById(user._id).session(session);
+
+      if (!existingUser) {
+        throw new BadRequestException('User not found');
+      }
+
+      if (updateUserDto.dateOfBirth) {
+        const parsedDate = moment(updateUserDto.dateOfBirth, 'DD/MM/YYYY', true);
+        if (!parsedDate.isValid()) {
+          throw new BadRequestException('Invalid date format. Please use DD/MM/YYYY.');
+        }
+        updateUserDto.dateOfBirth = parsedDate.toDate();
       }
 
       const updateData: any = { ...updateUserDto };
+
       if (avatar) {
+        if (existingUser.avatar) {
+          try {
+            unlinkSync(`./images/${existingUser.avatar}`);
+          } catch (unlinkError) {
+            throw new BadRequestException('Failed to delete old avatar file:', unlinkError);
+          }
+        }
         updateData.avatar = avatar;
       }
 
       const updatedUser = await this.userModel.model.findOneAndUpdate(
         { _id: user._id },
         { $set: updateData },
-        { new: true },
+        { new: true, session },
       );
 
-      if (!updatedUser) {
-        throw new BadRequestException('User not found');
-      }
+      await session.commitTransaction();
+      session.endSession();
 
       return plainToClass(UserResponseDto, updatedUser.toObject());
     } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      if (avatar) {
+        try {
+          unlinkSync(`./images/${avatar}`);
+        } catch (unlinkError) {
+          console.error('Failed to delete avatar file:', unlinkError);
+        }
+      }
+
       throw new BadRequestException(`Error while updating user: ${error.message}`);
     }
   }
@@ -88,7 +137,13 @@ export class UserService {
     }
 
     const userDoc = await this.userModel.model.findById(user._id);
-    return plainToInstance(UserResponseDto, userDoc.toObject());
+
+    const userObject = userDoc.toObject();
+    if (userObject.avatar) {
+      userObject.avatar = `${this.configService.get('BASE_URL')}/images/${userObject.avatar}`;
+    }
+
+    return plainToInstance(UserResponseDto, userObject);
   }
 
   async changePassword(
@@ -122,7 +177,16 @@ export class UserService {
   async getUsers(): Promise<UserResponseDto[]> {
     try {
       const usersDoc = await this.userModel.model.find().exec();
-      return usersDoc.map((doc) => doc.toObject());
+      const users = usersDoc.map((doc) => {
+        const userObject = doc.toObject();
+        if (userObject.avatar) {
+          userObject.avatar = `${this.configService.get('BASE_URL')}/images/${userObject.avatar}`;
+        }
+        return plainToInstance(UserResponseDto, userObject);
+      });
+      return users;
+
+      //return usersDoc.map((doc) => doc.toObject());
     } catch (e) {
       throw new BadRequestException(`Error while getting users: ${e.message}`);
     }

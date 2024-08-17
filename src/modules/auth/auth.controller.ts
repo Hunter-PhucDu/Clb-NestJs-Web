@@ -1,15 +1,8 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import {
-  ForgotPasswordDto,
-  GenerateOtpDto,
-  LoginRequestDto,
-  LogOutRequestDto,
-  RefreshTokenRequestDto,
-} from './dtos/request.dto';
+import { ForgotPasswordDto, GenerateOtpDto, LoginRequestDto, RefreshTokenRequestDto } from './dtos/request.dto';
 import { AdminLoginResponseDto, LoginResponseDto } from './dtos/response.dto';
-import { JwtAuthGuard } from 'modules/shared/gaurds/jwt.guard';
 import { ApiSuccessResponse } from 'modules/shared/decorators/api-success-response.decorator';
 import { EmailService } from 'modules/email/email.service';
 
@@ -44,8 +37,8 @@ export class AuthController {
 
   @Post('generate-otp')
   @ApiOperation({
-    summary: 'Creat opt for forgot passwword',
-    description: 'Creat opt for forgot passwword',
+    summary: 'Creat opt for forgot password',
+    description: 'Creat opt for forgot password',
   })
   async generateOtp(@Body() generateOtpDto: GenerateOtpDto): Promise<void> {
     return this.emailService.generateOtp(generateOtpDto.email);
@@ -53,18 +46,15 @@ export class AuthController {
 
   @Post('forgot-password')
   @ApiOperation({
-    summary: 'Forgot passwword',
-    description: 'Change password for forgot passwword',
+    summary: 'Forgot password',
+    description: 'Change password with otp code',
   })
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto): Promise<void> {
-    return this.authService.forgotPassword(forgotPasswordDto);
-  }
-
-  @Post('log-out')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Log out a user' })
-  async logOut(@Body() logOutDto: LogOutRequestDto): Promise<void> {
-    return this.authService.logOut(logOutDto);
+  @ApiBody({
+    description: 'Change password with otp code',
+    type: ForgotPasswordDto,
+  })
+  async forgotPassword(@Body() forgotPassDto: ForgotPasswordDto): Promise<void> {
+    return this.authService.forgotPassword(forgotPassDto);
   }
 
   @Post('refresh-token')

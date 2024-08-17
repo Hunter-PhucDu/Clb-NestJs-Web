@@ -5,9 +5,13 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 
-@ValidatorConstraint({ async: true })
+@ValidatorConstraint({ async: false })
 export class IsEmailConstraint implements ValidatorConstraintInterface {
   validate(text: string) {
+    if (!text) {
+      return true;
+    }
+
     const emailRegex = /\S+@\S+\.\S+/;
     return emailRegex.test(text);
   }

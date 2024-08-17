@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ForgotPasswordDto, LoginRequestDto, LogOutRequestDto, RefreshTokenRequestDto } from './dtos/request.dto';
+import { ForgotPasswordDto, LoginRequestDto, RefreshTokenRequestDto } from './dtos/request.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserModel } from 'modules/shared/models/user.model';
@@ -33,10 +33,6 @@ export class AuthService {
       await createdAdmin.save();
     }
   }
-
-  // async generateTokens(_id: string, username: string, role: string): Promise<string> {
-  //   return await this.jwtService.signAsync({ _id, username, role });
-  // }
 
   async generateTokens(
     _id: string,
@@ -96,19 +92,6 @@ export class AuthService {
     throw new BadRequestException('Username or password is incorrect.');
   }
 
-  // async _userLogin(loginDto: LoginRequestDto): Promise<{ accessToken: string; refreshToken: string }> {
-  //   const user = await this.userModel.model.findOne({
-  //     $or: [{ userName: loginDto.userName }, { email: loginDto.userName }],
-  //   });
-  //   if (!user) return null;
-
-  //   const checkPw = await this.checkPassword(loginDto.password, user.password);
-  //   if (!checkPw) return null;
-
-  //   const tokens = await this.generateTokens(user._id.toString(), user.email, user.role);
-  //   return tokens;
-  // }
-
   async _userLogin(
     loginDto: LoginRequestDto,
   ): Promise<{ accessToken: string; refreshToken: string; avatarUrl: string }> {
@@ -120,8 +103,15 @@ export class AuthService {
     const checkPw = await this.checkPassword(loginDto.password, user.password);
     if (!checkPw) return null;
 
+    let avatarUrl = '';
+
     const tokens = await this.generateTokens(user._id.toString(), user.userName, user.role);
-    const avatarUrl = `${this.configService.get('BASE_URL')}/images/${user.avatar}`;
+    if (!user.avatar) {
+      avatarUrl = 'https://i.imgur.com/Uoeie1w.jpg';
+    } else {
+      avatarUrl = `${this.configService.get('BASE_URL')}/images/${user.avatar}`;
+    }
+
     return { ...tokens, avatarUrl };
   }
 
@@ -135,11 +125,6 @@ export class AuthService {
 
     const tokens = await this.generateTokens(adminDoc._id, userName, adminDoc.role);
     return tokens;
-  }
-
-  async logOut(logOutDto: LogOutRequestDto): Promise<void> {
-    const { _id } = logOutDto;
-    await this.userModel.model.findByIdAndUpdate(_id, { refreshToken: null });
   }
 
   async forgotPassword(forgotPwDto: ForgotPasswordDto): Promise<void> {
@@ -158,6 +143,6 @@ export class AuthService {
     const hashedPw = await this.hashPassword(forgotPwDto.newPassword);
     await this.userModel.model.findOneAndUpdate({ _id: user._id }, { password: hashedPw }, { new: true });
 
-    await this.otpModel.model.deleteOne({ _id: otpDoc._id }); // delete otp
+    await this.otpModel.model.deleteOne({ _id: otpDoc._id });
   }
 }

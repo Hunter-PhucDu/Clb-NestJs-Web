@@ -58,7 +58,7 @@ export class ChangePasswordRequestDto {
 }
 
 @Exclude()
-export class ForgotPasswordDto {
+export class ForgotPasswordAdminDto {
   @Expose()
   @ApiProperty({
     required: true,

@@ -96,7 +96,7 @@ export class UpdateMemberRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: String,
     example: 'Nguyen Van A',
   })
@@ -105,7 +105,7 @@ export class UpdateMemberRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: String,
     example: 'K62 ĐH CNTTA',
   })
@@ -114,7 +114,7 @@ export class UpdateMemberRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: String,
     example: '0378886868',
   })
@@ -127,7 +127,7 @@ export class UpdateMemberRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: String,
     example: 'abc@gmail.com',
   })
@@ -138,7 +138,7 @@ export class UpdateMemberRequestDto {
   @Transform(({ value }) => value?.trim())
   email?: string;
 
-  @ApiProperty({ enum: ESex, default: ESex.FEMALE })
+  @ApiProperty({ required: false, enum: ESex })
   @Expose()
   @IsOptional()
   @IsEnum(ESex)
@@ -146,7 +146,7 @@ export class UpdateMemberRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: Date,
     example: '1/1/2000',
   })
@@ -155,14 +155,14 @@ export class UpdateMemberRequestDto {
 
   @Expose()
   @ApiProperty({
-    required: true,
+    required: false,
     type: Date,
-    example: '20/6/2024',
+    example: '2/6/2024',
   })
   @IsOptional()
   joinedDate?: Date;
 
-  @ApiProperty({ enum: ECommittee, default: ECommittee.Member })
+  @ApiProperty({ required: false, enum: ECommittee })
   @Expose()
   @IsOptional()
   @IsEnum(ECommittee)

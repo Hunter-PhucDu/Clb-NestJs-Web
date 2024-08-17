@@ -9,7 +9,7 @@ import { Roles } from 'modules/shared/decorators/role.decorator';
 import { ERole } from 'modules/shared/enums/auth.enum';
 import { JwtAuthGuard } from 'modules/shared/gaurds/jwt.guard';
 import { RolesGuard } from 'modules/shared/gaurds/role.gaurd';
-import { AddAdminRequestDto, ChangePasswordRequestDto, ForgotPasswordDto } from './dtos/request.dto';
+import { AddAdminRequestDto, ChangePasswordRequestDto, ForgotPasswordAdminDto } from './dtos/request.dto';
 import { AdminResponseDto, ChangePasswordResponseDto } from './dtos/response.dto';
 import { IJwtPayload } from 'modules/shared/interfaces/auth.interface';
 import { AdminService } from './admin.service';
@@ -66,7 +66,7 @@ export class AdminController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Roles([ERole.ADMIN])
-  async forgotPasswordAdmin(@Body() forgotPasswordDto: ForgotPasswordDto): Promise<void> {
+  async forgotPasswordAdmin(@Body() forgotPasswordDto: ForgotPasswordAdminDto): Promise<void> {
     return this.adminService.forgotPassword(forgotPasswordDto);
   }
 

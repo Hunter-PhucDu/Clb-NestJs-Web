@@ -4,7 +4,7 @@ import { AuthService } from '../auth/auth.service';
 import { ERole } from 'modules/shared/enums/auth.enum';
 import { IJwtPayload } from 'modules/shared/interfaces/auth.interface';
 import { AdminModel } from 'modules/shared/models/admin.model';
-import { AddAdminRequestDto, ChangePasswordRequestDto, ForgotPasswordDto } from './dtos/request.dto';
+import { AddAdminRequestDto, ChangePasswordRequestDto, ForgotPasswordAdminDto } from './dtos/request.dto';
 import { AdminResponseDto, ChangePasswordResponseDto } from './dtos/response.dto';
 
 @Injectable()
@@ -73,7 +73,7 @@ export class AdminService {
     }
   }
 
-  async forgotPassword(forgotPwAdminDto: ForgotPasswordDto): Promise<void> {
+  async forgotPassword(forgotPwAdminDto: ForgotPasswordAdminDto): Promise<void> {
     const user = await this.adminModel.model.findOne({ userName: forgotPwAdminDto.userName });
 
     if (!user) {

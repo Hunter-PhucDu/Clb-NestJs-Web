@@ -6,9 +6,12 @@ import {
 } from 'class-validator';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 
-@ValidatorConstraint({ async: true })
+@ValidatorConstraint({ async: false })
 export class IsPhoneConstraint implements ValidatorConstraintInterface {
   validate(text: string) {
+    if (!text) {
+      return true;
+    }
     return isValidPhoneNumber(text, 'VN');
   }
 }
