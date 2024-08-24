@@ -35,6 +35,14 @@ export class MemberService {
         addMemberDto.dateOfBirth = parsedDate.toDate();
       }
 
+      if (addMemberDto.joinedDate) {
+        const parsedDate = moment(addMemberDto.joinedDate, 'DD/MM/YYYY', true);
+        if (!parsedDate.isValid()) {
+          throw new BadRequestException('Invalid date format. Please use DD/MM/YYYY.');
+        }
+        addMemberDto.joinedDate = parsedDate.toDate();
+      }
+
       const newUser = await this.memberModel.save({
         ...addMemberDto,
         avatar,

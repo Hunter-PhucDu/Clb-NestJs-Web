@@ -67,7 +67,7 @@ export class AddMemberRequestDto {
   @ApiProperty({
     required: false,
     type: Date,
-    example: '1/1/2000',
+    example: '11/12/2000',
   })
   @IsOptional()
   dateOfBirth?: Date;
@@ -76,7 +76,7 @@ export class AddMemberRequestDto {
   @ApiProperty({
     required: false,
     type: Date,
-    example: '20/6/2024',
+    example: '12/11/2024',
   })
   @IsOptional()
   joinedDate?: Date;
