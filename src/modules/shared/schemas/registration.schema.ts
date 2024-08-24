@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ESex } from '../enums/sex.enum';
 import mongoosePaginate from 'mongoose-paginate-v2';
-import { Question } from './Question.schema';
+import { Question } from './question.schema';
 import { Types } from 'mongoose';
 
 export type RegistrationDocument = Registration & Document;

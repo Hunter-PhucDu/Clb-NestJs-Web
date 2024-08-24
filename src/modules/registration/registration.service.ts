@@ -3,6 +3,7 @@ import { plainToClass, plainToInstance } from 'class-transformer';
 import { ListRecordSuccessResponseDto } from '../shared/dtos/list-record-success-response.dto';
 import { MetadataResponseDto } from '../shared/dtos/metadata-response.dto';
 import { RegistrationModel } from '../shared/models/registration.model';
+import { QuestionModel } from '../shared/models/question.model';
 import { getPagination } from '../shared/utils/get-pagination';
 import {
   AddRegistrationRequestDto,
@@ -10,7 +11,6 @@ import {
   PassedFirstRoundRequestDto,
 } from './dtos/request.dto';
 import { RegistrationResponseDto } from './dtos/response.dto';
-import { QuestionModel } from 'modules/shared/models/question.model';
 import { EmailService } from 'modules/email/email.service';
 import { RegistrationSettingService } from 'modules/registrationSetting/registrationSetting.service';
 import moment from 'moment';
