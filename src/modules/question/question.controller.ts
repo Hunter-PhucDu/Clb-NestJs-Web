@@ -3,7 +3,7 @@ import { QuestionService } from './question.service';
 import { QuestionResponseDto, QuestionsResponseDto } from './dtos/response.dto';
 import { AddQuestionRequestDto, UpdateQuestionRequestDto } from './dtos/request.dto';
 import { Roles } from 'modules/shared/decorators/role.decorator';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   ApiSuccessPaginationResponse,
   ApiSuccessResponse,
@@ -27,7 +27,10 @@ export class QuestionController {
     summary: 'Add new question',
     description: 'Add new question',
   })
-  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Add new question',
+    type: AddQuestionRequestDto,
+  })
   @ApiSuccessResponse({ dataType: QuestionResponseDto })
   async createProduct(@Body() body: AddQuestionRequestDto): Promise<QuestionResponseDto> {
     return await this.questionService.addQuestion(body);
@@ -41,7 +44,6 @@ export class QuestionController {
     summary: 'Updating question',
     description: 'Updating question',
   })
-  @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Update question form-data',
     type: UpdateQuestionRequestDto,

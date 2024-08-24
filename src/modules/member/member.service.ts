@@ -77,11 +77,14 @@ export class MemberService {
       const updateData: any = { ...updateMemberDto };
 
       if (avatar) {
-        try {
-          unlinkSync(`./images/${avatar}`);
-        } catch (unlinkError) {
-          console.error('Failed to delete avatar file:', unlinkError);
+        if (existingMember.avatar) {
+          try {
+            unlinkSync(`./images/${existingMember.avatar}`);
+          } catch (unlinkError) {
+            throw new BadRequestException('Failed to delete old avatar file:', unlinkError);
+          }
         }
+        updateData.avatar = avatar;
       }
 
       const updatedMember = await this.memberModel.model.findOneAndUpdate(
