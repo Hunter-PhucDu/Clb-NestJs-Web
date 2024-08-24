@@ -8,10 +8,6 @@ import { IsPhone } from 'modules/shared/decorators/is-phone.docorator';
 
 @Exclude()
 export class AddUserRequestDto {
-  @ApiProperty({ required: false, type: 'string', format: 'binary' })
-  @IsOptional()
-  avatar?: any;
-
   @Expose()
   @ApiProperty({
     required: true,
@@ -34,19 +30,6 @@ export class AddUserRequestDto {
   @ApiProperty({
     required: true,
     type: String,
-    example: '0378886868',
-  })
-  @IsOptional()
-  @IsEmailOrPhone({
-    message: 'Phone number is not valid (VN)',
-  })
-  @Transform(({ value }) => value?.trim())
-  phone?: string;
-
-  @Expose()
-  @ApiProperty({
-    required: true,
-    type: String,
     example: 'abc@gmail.com',
   })
   @IsNotEmpty()
@@ -55,21 +38,6 @@ export class AddUserRequestDto {
   })
   @Transform(({ value }) => value?.trim())
   email: string;
-
-  @ApiProperty({ enum: ESex, default: ESex.MALE })
-  @Expose()
-  @IsOptional()
-  @IsEnum(ESex)
-  sex?: ESex;
-
-  @Expose()
-  @ApiProperty({
-    required: true,
-    type: Date,
-    example: '1/1/2000',
-  })
-  @IsOptional()
-  dateOfBirth?: Date;
 
   @Expose()
   @ApiProperty({

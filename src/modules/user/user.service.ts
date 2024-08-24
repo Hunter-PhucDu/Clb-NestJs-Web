@@ -31,27 +31,18 @@ export class UserService {
 
   async addUser(addUserDto: AddUserRequestDto, avatar?: string): Promise<UserResponseDto> {
     try {
-      const { userName, fullName, email, phone, password } = addUserDto;
+      const { userName, fullName, email, password } = addUserDto;
       const existedUser = await this.userModel.model.findOne({
-        $or: [{ userName }, { phone }, { email }],
+        $or: [{ userName }, { email }],
       });
 
       if (existedUser) {
-        throw new BadRequestException('UserName, Email or phone number has been registered.');
+        throw new BadRequestException('UserName or Email has been registered.');
       }
       const hashedPw = await this.authService.hashPassword(password);
 
-      if (addUserDto.dateOfBirth) {
-        const parsedDate = moment(addUserDto.dateOfBirth, 'DD/MM/YYYY', true);
-        if (!parsedDate.isValid()) {
-          throw new BadRequestException('Invalid date format. Please use DD/MM/YYYY.');
-        }
-        addUserDto.dateOfBirth = parsedDate.toDate();
-      }
-
       const newUser = await this.userModel.save({
         ...addUserDto,
-        avatar,
         password: hashedPw,
         experiencePoints: 0,
         rank: ERank.IRON,
@@ -62,13 +53,6 @@ export class UserService {
 
       return plainToClass(UserResponseDto, newUser.toObject());
     } catch (error) {
-      if (avatar) {
-        try {
-          unlinkSync(`./images/${avatar}`);
-        } catch (unlinkError) {
-          console.error('Failed to delete avatar file:', unlinkError);
-        }
-      }
       throw new BadRequestException(`Error while sign up: ${error.message}`);
     }
   }

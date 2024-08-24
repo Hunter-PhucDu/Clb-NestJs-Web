@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsArray, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { PaginationDto } from 'modules/shared/dtos/pagination.dto';
@@ -14,30 +14,10 @@ export class AddPostRequestDto {
   @IsNotEmpty()
   title: string;
 
-  @IsArray()
-  @IsOptional()
   @Expose()
   @ApiProperty({
     required: true,
-    type: [String],
-    format: 'binary',
-  })
-  images?: any[];
-
-  @IsArray()
-  @IsOptional()
-  @Expose()
-  @ApiProperty({
-    required: true,
-    type: [String],
-    format: 'binary',
-  })
-  videos?: any[];
-
-  @Expose()
-  @ApiProperty({
-    required: true,
-    type: JSON,
+    type: Object,
     example: 'html',
   })
   @IsNotEmpty()
@@ -63,26 +43,6 @@ export class UpdatePostRequestDto {
   })
   @IsOptional()
   title?: string;
-
-  @IsArray()
-  @IsOptional()
-  @Expose()
-  @ApiProperty({
-    required: true,
-    type: [String],
-    format: 'binary',
-  })
-  images?: any[];
-
-  @IsArray()
-  @IsOptional()
-  @Expose()
-  @ApiProperty({
-    required: true,
-    type: [String],
-    format: 'binary',
-  })
-  videos?: any[];
 
   @Expose()
   @ApiProperty({

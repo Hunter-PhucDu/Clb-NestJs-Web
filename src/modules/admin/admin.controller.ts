@@ -42,7 +42,7 @@ export class AdminController {
     description: 'Get admins details',
   })
   @ApiSuccessPaginationResponse({ dataType: AdminResponseDto })
-  async getMembers(): Promise<AdminResponseDto[]> {
+  async getAdmins(): Promise<AdminResponseDto[]> {
     return await this.adminService.getAdmins();
   }
 

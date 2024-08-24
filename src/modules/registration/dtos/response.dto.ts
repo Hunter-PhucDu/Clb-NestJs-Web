@@ -50,7 +50,7 @@ export class RegistrationResponseDto {
   @ApiProperty({
     required: true,
     type: Date,
-    example: '1/1/2000',
+    example: '20/06/2000',
   })
   dateOfBirth?: Date;
 

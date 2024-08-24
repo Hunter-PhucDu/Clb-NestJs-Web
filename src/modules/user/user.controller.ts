@@ -57,18 +57,13 @@ export class UserController {
     summary: 'Add new user',
     description: 'Add new user',
   })
-  @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Add user form-data',
+    description: 'Add new user',
     type: AddUserRequestDto,
   })
-  @UseInterceptors(FileInterceptor('avatar', userAvatarStorageConfig))
   @ApiSuccessResponse({ dataType: UserResponseDto })
-  async addUser(
-    @UploadedFile() avatar: Express.Multer.File,
-    @Body() body: AddUserRequestDto,
-  ): Promise<UserResponseDto> {
-    return await this.userService.addUser(body, avatar?.filename);
+  async addUser(@Body() body: AddUserRequestDto): Promise<UserResponseDto> {
+    return await this.userService.addUser(body);
   }
 
   @Get('')
